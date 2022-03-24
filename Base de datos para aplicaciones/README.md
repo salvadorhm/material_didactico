@@ -53,8 +53,10 @@ id_cliente  nombre      email
 2           Jonh        jonh@email.com 
 
 ```
+
 ---
 ## **TABLA PRODUCTOS**
+---
 
 ### Creación de la tabla **Productos**
 
@@ -91,6 +93,7 @@ id_producto  producto    precio_unitario
 ```
 ---
 ## **TABLA VENTAS**
+---
 
 ### Creación de la tabla **Ventas**
 
@@ -127,8 +130,10 @@ id_venta    fecha       id_cliente
 2           2020/01/02  1         
 3           2020/01/03  2    
 ```
+
 ---
 ## **TABLA DETALLES_VENTAS**
+---
 
 ### Creación de la tabla **"Detalle ventas"**
 
@@ -174,6 +179,7 @@ id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  t
 
 ---
 ## **TABLA  PROVEEDORES**
+---
 
 ### Creación de la tabla **Proveedores**
 
@@ -212,6 +218,7 @@ id_proveedor  proveedor   nombre_contacto  email_contacto
 
 ---
 ### **TABLA COMPRAS**
+---
 
 ### Creación de la tabla **Compras**
 
@@ -251,6 +258,7 @@ id_compra   fecha       id_proveedor
 
 ---
 ## **TABLA DETALLES_COMPRAS**
+---
 
 ### Creación de la tabla **Detalle de Compras**
 
@@ -295,7 +303,7 @@ id_detalle_compra  id_compra   id_producto  cantidad_producto  precio_unitario  
 ```
 
 ---
-## 1. Consultas Ventas
+## Consultas Ventas
 ---
 
 
@@ -326,6 +334,7 @@ id_cliente  nombre      email            fecha       id_detalle_venta  id_venta 
 2           Jonh        jonh@email.com   2020/01/03  5                 3           2            Libreta     10                 20.0             200.0    
 ```
 
+---
 ## **Consulta 02:**
 
 Mostrar el total_venta por cada venta
@@ -347,6 +356,7 @@ id_venta    total_venta
 3           250.0  
 ```
 
+---
 ## **Consulta 03:**
 
 Mostrar el nombre del cliente y total_venta por cada venta
@@ -371,12 +381,17 @@ Dejah       2           20.0
 Jonh        3           250.0   
 ```
 
-## **Consulta 04:** 
+---
+## **Consulta 04:**
 
 Mostrar el nombre del cliente y el total que pagado
 
 ### Script SQL
 ```sql
+SELECT clientes.nombre, sum(detalle_ventas.total_x_producto) as total_venta
+FROM clientes,ventas, detalle_ventas
+WHERE clientes.id_cliente = ventas.id_cliente AND ventas.id_venta = detalle_ventas.id_venta
+GROUP BY  clientes.nombre;
 ```
 
 ### Resultado del script
@@ -388,12 +403,17 @@ Dejah       230.0
 Jonh        250.0  
 ```
 
+---
 ## **Consulta 05:**
 
 Mostrar la cantidad total de productos vendida por cada producto
 
 ### Script SQL
 ```sql
+SELECT productos.producto, sum(detalle_ventas.cantidad_producto) as cantidad_producto
+FROM productos,detalle_ventas
+WHERE detalle_ventas.id_producto= productos.id_producto
+GROUP BY productos.producto;
 ```
 
 ### Resultado del script
@@ -405,12 +425,17 @@ Libreta     21
 Lápiz       12   
 ```
 
+---
 ## **Consulta 06:**
 
 Mostrar el total vendido por dia
 
 ### Script SQL
 ```sql
+SELECT ventas.fecha, sum(detalle_ventas.total_x_producto) as total_venta
+FROM ventas, detalle_ventas
+WHERE ventas.id_venta = detalle_ventas.id_venta
+GROUP BY ventas.id_venta;
 ```
 
 ### Resultado del script
@@ -423,12 +448,17 @@ fecha       total_venta
 2020/01/03  250.0  
 ```
 
-## **Consulta 7:**
+---
+## **Consulta 07:**
 
 Mostrar el dia que menos se ha vendido
 
 ### Script SQL
 ```sql
+SELECT ventas.fecha, sum(detalle_ventas.total_x_producto) as total_venta
+FROM ventas, detalle_ventas
+WHERE ventas.id_venta = detalle_ventas.id_venta
+GROUP BY ventas.id_venta ORDER BY total_venta LIMIT 1;
 ```
 
 ### Resultado del script
@@ -438,17 +468,23 @@ fecha       total_venta
 ----------  -----------
 2020/01/02  20.0  
 ```
-## ---------------------------------------------------------------
+
+---
 ## Consultas Compras
-## ---------------------------------------------------------------
+---
 
-
-## **Consulta 08:** 
+## **Consulta 08:**
 
 Mostrar id_proveedor, proveedor, nombre_contacto, email_contacto, fecha, id_compra, id_producto, producto, cantidad_producto,precio_unitario,total_producto para cada **detalle_compra**
 
 ### Script SQL
 ```sql
+SELECT proveedores.id_proveedor, proveedores.proveedor, proveedores.nombre_contacto, proveedores.email_contacto, compras.fecha, compras.id_compra, detalle_compras.id_producto, productos.producto, detalle_compras.cantidad_producto,detalle_compras.precio_unitario,detalle_compras.total_x_producto
+FROM proveedores, compras, productos, detalle_compras
+WHERE
+proveedores.id_proveedor = compras.id_proveedor AND
+compras.id_compra = detalle_compras.id_compra AND
+detalle_compras.id_producto = productos.id_producto;
 ```
 
 ### Resultado del script
@@ -463,12 +499,16 @@ id_proveedor  proveedor   nombre_contacto  email_contacto  fecha       id_compra
 2             Cloud9      Diana Prince     diana@scribe.c  2020/03/03  3           1            Lápiz acme 2H  300                5.0              600.0   
 ```
 
+---
 ## **Consulta 09:**
 
 Mostrar el total_compra por cada **compra**
 
 ### Script SQL
 ```sql
+select detalle_compras.id_compra, sum(total_x_producto) as total_compra
+FROM detalle_compras
+GROUP BY id_compra;
 ```
 
 ### Resultado del script
@@ -481,12 +521,17 @@ id_compra   total_compra
 3           600.0  
 ```
 
+---
 ## **Consulta 10:**
 
 Mostrar el proveedor, nombre_contacto, email_contacto y total_compra por cada compra
 
 ### Script SQL
 ```sql
+SELECT proveedores.proveedor, proveedores.nombre_contacto, proveedores.email_contacto ,compras.id_compra, sum(detalle_compras.total_x_producto) as total_compra
+FROM proveedores,compras, detalle_compras
+WHERE proveedores.id_proveedor= compras.id_proveedor AND compras.id_compra = detalle_compras.id_compra
+GROUP BY compras.id_compra;
 ```
 
 ### Resultado del script
@@ -499,12 +544,17 @@ Cloud9      Diana Prince     diana@scribe.c  2           6000.0
 Cloud9      Diana Prince     diana@scribe.c  3           600.0  
 ```
 
+---
 ## **Consulta 11:**
 
 Mostrar el proveedor  y el total que se le ha comprado
 
 ### Script SQL
 ```sql
+SELECT proveedores.proveedor, sum(detalle_compras.total_x_producto) as total_compra
+FROM proveedores,compras, detalle_compras
+WHERE proveedores.id_proveedor= compras.id_proveedor AND compras.id_compra = detalle_compras.id_compra
+GROUP BY  proveedores.proveedor;
 ```
 
 ### Resultado del script
@@ -516,12 +566,17 @@ ACME        3500.0
 Cloud9      6600.0  
 ```
 
+---
 ## **Consulta 12:**
 
 Mostrar la cantidad total de productos comprados por cada producto
 
 ### Script SQL
 ```sql
+SELECT productos.producto, sum(detalle_compras.cantidad_producto) as cantidad_producto
+FROM productos,detalle_compras
+WHERE detalle_compras.id_producto= productos.id_producto
+GROUP BY productos.producto;
 ```
 
 ### Resultado del script
@@ -533,12 +588,17 @@ Libreta scribe profesional  400
 Lápiz acme 2H               600   
 ```
 
+---
 ## **Consulta 13:**
 
 Mostrar el total comprado por día
 
 ### Script SQL
 ```sql
+SELECT compras.fecha, sum(detalle_compras.total_x_producto) as total_compra
+FROM compras, detalle_compras
+WHERE compras.id_compra = detalle_compras.id_compra
+GROUP BY compras.id_compra;
 ```
 
 ### Resultado del script
@@ -551,12 +611,18 @@ fecha       total_compra
 2020/03/03  600.0 
 ```
 
+---
 ## **Consulta 14:**
 
 Mostrar el dia que más se ha comprado
 
 ### Script SQL
+
 ```sql
+SELECT compras.fecha, sum(detalle_compras.total_x_producto) as total_compra
+FROM compras, detalle_compras
+WHERE compras.id_compra = detalle_compras.id_compra
+GROUP BY compras.id_compra ORDER BY total_compra DESC LIMIT 1;
 ```
 
 ### Resultado del script
@@ -567,15 +633,23 @@ fecha       total_compra
 2020/02/02  6000.0    
 ```
 
-## ---------------------------------------------------------------
+---
 ## Consultas Triggers
-## ---------------------------------------------------------------
+---
 
-## **Consulta 15:** 
+## **Consulta 15:**
 
 Modificar mediante sql la estructura de la tabla **productos** e insertar el campo existencias de tipo entero y con un valor default de 100.
 
 Tabla productos antes de modificar su estructura
+
+### Script SQL
+
+```sql
+SELECT * from productos;
+```
+
+### Resultado del script
 ```sql
 id_producto  producto       precio_unitario
 -----------  -------------  ---------------
@@ -583,7 +657,10 @@ id_producto  producto       precio_unitario
 2            Libreta scrib  20.0
 ```
 ### Script SQL
+
 ```sql
+ALTER TABLE productos
+ADD existencias integer default 100;
 ```
 
 ### Resultado del script
@@ -596,6 +673,7 @@ id_producto  producto       precio_unitario  existencias
 2            Libreta scrib  20.0             100
 ```
 
+---
 ## **Consulta 16:**
 
 Crear un trigger que después de insertar un producto en detalle_ventas, dejando preci_unitario y total_x_producto con un valor de 0, actualice el precio_unitario del producto insertado trayendolo directmente de la tabla productos.
@@ -607,6 +685,20 @@ VALUES (1,1,2,0,0);
 ```
 ### Script SQL
 ```sql
+CREATE TRIGGER actualizar_precio_unitario
+   AFTER INSERT ON detalle_ventas
+BEGIN
+    UPDATE detalle_ventas
+    SET precio_unitario = (SELECT precio_unitario FROM productos where detalle_ventas.id_producto = productos.id_producto)
+    where id_producto = new.id_producto;
+END;
+
+SELECT * FROM detalle_ventas;
+
+INSERT INTO detalle_ventas(id_venta,id_producto,cantidad_producto,precio_unitario,total_x_producto)
+VALUES (1,1,2,0,0);
+
+SELECT * FROM detalle_ventas;
 ```
 
 ### Resultado del script
@@ -622,9 +714,31 @@ id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  t
 6                 1           1            2                  5.0              0.0
 ```
 
-17. **Consulta 17** Crear un trigger que después de insertar un producto en detalle_ventas, actualice las existencias de productos:
+---
+## **Consulta 17**
 
-Existencias de productos:
+Crear un trigger que después de insertar un producto en detalle_ventas, actualice las existencias de productos:
+
+### Script SQL
+
+```sql
+CREATE TRIGGER actualizar_inventario
+   AFTER INSERT ON detalle_ventas
+BEGIN
+    UPDATE productos
+    SET existencias = existencias - new.cantidad_producto
+    where id_producto = new.id_producto;
+END;
+
+SELECT * FROM productos;
+
+INSERT INTO detalle_ventas(id_venta,id_producto,cantidad_producto,precio_unitario,total_x_producto)
+VALUES (1,1,2,0,0);
+
+SELECT * FROM productos;
+```
+
+### Existencias de productos:
 ```
 id_producto  producto       precio_unitario  existencias
 -----------  -------------  ---------------  -----------
@@ -632,7 +746,7 @@ id_producto  producto       precio_unitario  existencias
 2            Libreta scrib  20.0             100
 ```
 
-Nuevo detalle_venta
+### Nuevo detalle_venta
 ```
 INSERT INTO detalle_ventas(id_venta,id_producto,cantidad_producto,precio_unitario,total_x_producto)
 VALUES (1,1,2,0,0);
@@ -646,9 +760,30 @@ id_producto  producto       precio_unitario  existencias
 2            Libreta scrib  20.0             100
 ```
 
-18. **Consulta 18** Crear un trigger que después de actualizar el detalle_ventas, actualice las total_x_prodcutos con la operación total_x_producto = cantidad_producto * precio_unitario:
+---
+## **Consulta 18**
+
+Crear un trigger que después de actualizar el detalle_ventas, actualice las total_x_prodcutos con la operación total_x_producto = cantidad_producto * precio_unitario:
+
+```sql
+CREATE TRIGGER actualizar_total_producto
+   AFTER update ON detalle_ventas
+BEGIN
+    UPDATE detalle_ventas
+    SET total_x_producto = cantidad_producto * precio_unitario
+    WHERE id_detalle_venta = new.id_detalle_venta;
+END;
+
+SELECT * FROM detalle_ventas;
+
+INSERT INTO detalle_ventas(id_venta,id_producto,cantidad_producto,precio_unitario,total_x_producto)
+VALUES (1,1,10,0,0);
+
+SELECT * FROM detalle_ventas;
+```
 
 Detalle ventas antes del TRIGGER
+
 ```
 id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  total_x_producto
 ----------------  ----------  -----------  -----------------  ---------------  ----------------
@@ -662,12 +797,15 @@ id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  t
 ```
 
 Insertar nuevo detalle_ventas
-```
+
+```sql
 INSERT INTO detalle_ventas(id_venta,id_producto,cantidad_producto,precio_unitario,total_x_producto)
 VALUES (1,1,10,0,0);
 ```
+
 Tabla detalle_ventas actualizada con el trigger.
-```
+
+```sql
 id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  total_x_producto
 ----------------  ----------  -----------  -----------------  ---------------  ----------------
 1                 1           1            2                  5.0              10.0
@@ -680,10 +818,9 @@ id_detalle_venta  id_venta    id_producto  cantidad_producto  precio_unitario  t
 8                 1           1            10                 5.0              50.0
 ```
 
-## ---------------------------------------------------------------
+---
 ## Transactions
-## ---------------------------------------------------------------
-
+---
 
 ### COMMIT
 
@@ -702,7 +839,7 @@ VALUES
 
 ### **SELECT * FROM clientes;**
 
-```sl
+```sql
 1|Dejah|dejah@email.com
 2|Jonh|jonh@email.com
 ```
@@ -729,6 +866,7 @@ COMMIT;
 
 #### Nota: COMMIT aplica la transaccion
 
+---
 ### ROLLBACK
 
 ```sql
@@ -751,6 +889,7 @@ VALUES
 2|Jonh|jonh@email.com
 ```
 ### Transaction ROLLBACK
+
 ```sql
 BEGIN TRANSACTION;
 
@@ -770,6 +909,7 @@ ROLLBACK;
 
 #### Nota: ROLLBACK anula la transacion
 
+---
 ## **PERMISSIONS**
 
 ```sql
@@ -818,17 +958,19 @@ FLUSH PRIVILEGES;
 * **GRANT OPTION** Permite dar o quitar permisos a los usuarios.
 
 ## Quitar permisos
+
 ```sql
 REVOKE Select ON demo_users.* TO 'invitado'@'localhost';
 ```
 
 ## Mostrar lista de permisos
+
 ```sql
 SHOW GRANTS FOR 'invitado'@'localhost';
 ```
 
 ## Eliminar usuario
+
 ```sql
 DROP USER 'invitado'@'localhost';
 ```
-
